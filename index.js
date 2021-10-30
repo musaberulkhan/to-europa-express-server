@@ -1,11 +1,14 @@
 const express = require('express');
 const cors = require('cors');
-const app = express();
 const { MongoClient } = require('mongodb');
-const port = process.env.PORT || 5000;
+const ObjectId = require('mongodb').ObjectId;
 
 
 require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 5000;
+
 
 
 app.use(cors());
@@ -21,10 +24,36 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        const database = client.db('onlineShop');
-        const productsCollections = database.collection('products');
+        const database = client.db('toEuropa');
+        const offersCollections = database.collection('offers');
+        const packagesCollections = database.collection('packages');
+        const ordersCollections = database.collection('orders');
 
+        app.get('/offers', async (req, res) => {
+            const cursor = offersCollections.find({});
+            const offers = await cursor.toArray();
+            res.send(offers);
+        });
 
+        app.get('/packages', async (req, res) => {
+            const cursor = packagesCollections.find({});            
+            const packages = await cursor.toArray();
+            res.send(packages);
+        });
+
+        app.get('/packages/:id', async (req, res) => {
+            const id = req.params.id;                      
+            const query = {_id: ObjectId(id)}
+            const package = await packagesCollections.findOne(query);
+            res.json(package);
+        });
+
+        //Post API
+        app.post('/booking', async (req, res) => {
+            const orderDetails = req.body;   
+            const result = await ordersCollections.insertOne(orderDetails);            
+            res.send(result)
+        });
     }
     finally {
 
