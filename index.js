@@ -48,12 +48,35 @@ async function run() {
             res.json(package);
         });
 
+
+        //Post API
+        app.post('/package', async (req, res) => {
+            const packageDetails = req.body;   
+            const result = await packagesCollections.insertOne(packageDetails);            
+            res.send(result)
+        });
+
+
+        app.get('/orders/:email', async (req, res) => {
+            const email = req.params.email;          
+            const cursor = await ordersCollections.find({user:email});
+            const orders = await cursor.toArray();
+            res.json(orders);
+        });
+
         //Post API
         app.post('/booking', async (req, res) => {
             const orderDetails = req.body;   
             const result = await ordersCollections.insertOne(orderDetails);            
             res.send(result)
         });
+
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollections.deleteOne(query);            
+            res.json(result);
+          });
     }
     finally {
 
