@@ -89,6 +89,21 @@ async function run() {
             const result = await ordersCollections.deleteOne(query);
             res.json(result);
         });
+
+
+         //--------------   Update Status Using Id    ------------------
+         app.get('/orderUpdate/:id', async (req, res) => {
+            const id = req.params.id;            
+            const filter = { _id: ObjectId(id)};
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: "approved"                    
+                },
+            };
+            const result = await ordersCollections.updateOne(filter, updateDoc, options);           
+            res.json(result)
+        })
     }
     finally {
 
